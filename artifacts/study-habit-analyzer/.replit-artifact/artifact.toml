@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Study Habit Analyzer"
+version = "1.0.0"
+id = "artifacts/study-habit-analyzer"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21445
+
+[services.development]
+run = "pnpm --filter @workspace/study-habit-analyzer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/study-habit-analyzer", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/study-habit-analyzer/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21445"
+BASE_PATH = "/"
