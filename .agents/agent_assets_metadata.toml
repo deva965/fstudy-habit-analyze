@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "dhEc2ZEogPBAYt_n8wN_L"
+uri = "file://script.js"
+type = "unspecified"
+title = "script.js — API-connected Study Habit Analyzer"

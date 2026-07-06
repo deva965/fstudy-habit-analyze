@@ -1,4 +1,8 @@
-/**
+
+  }
+}
+
+// ─── Boo/**
  * Study Habit Analyzer — API-connected script.js
  *
  * Replace YOUR_REPLIT_API_URL below with your actual Replit backend URL,
@@ -358,10 +362,6 @@ async function refreshAll() {
     report();
     renderCharts();
   } catch (e) {
-    console.error("Failed to load data:", e);
-  }
-}
-
-// ─── Boot ─────────────────────────────────────────────────────────────────────
+    console.error("Failed to load data:", e);t ─────────────────────────────────────────────────────────────────────
 
 refreshAll();
