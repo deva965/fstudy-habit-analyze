@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Study Habit Analyzer API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: study-logs
+    description: Study log CRUD operations
+  - name: analytics
+    description: Analytics and insights
+  - name: goals
+    description: Daily goal management
 paths:
   /healthz:
     get:
@@ -24,6 +30,130 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /study-logs:
+    get:
+      operationId: listStudyLogs
+      tags: [study-logs]
+      summary: List all study logs
+      description: Returns all study log entries sorted by date descending
+      responses:
+        "200":
+          description: List of study logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudyLog"
+    post:
+      operationId: createStudyLog
+      tags: [study-logs]
+      summary: Create a study log entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudyLogInput"
+      responses:
+        "201":
+          description: Study log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyLog"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: clearAllStudyLogs
+      tags: [study-logs]
+      summary: Clear all study logs
+      responses:
+        "204":
+          description: All study logs deleted
+
+  /study-logs/{id}:
+    delete:
+      operationId: deleteStudyLog
+      tags: [study-logs]
+      summary: Delete a study log entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Study log deleted
+        "400":
+          description: Invalid id parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Study log not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /analytics:
+    get:
+      operationId: getAnalytics
+      tags: [analytics]
+      summary: Get analytics and insights
+      description: Returns productivity score, streak, goal progress, weak subject, and consistency insights
+      responses:
+        "200":
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Analytics"
+
+  /goals:
+    get:
+      operationId: getGoal
+      tags: [goals]
+      summary: Get current daily goal
+      responses:
+        "200":
+          description: Current daily goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+    put:
+      operationId: updateGoal
+      tags: [goals]
+      summary: Update daily goal hours
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoalUpdate"
+      responses:
+        "200":
+          description: Updated daily goal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Goal"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +164,163 @@ components:
       required:
         - status
 
+    StudyLog:
+      type: object
+      required:
+        - id
+        - date
+        - subject
+        - hoursStudied
+        - focusLevel
+        - mood
+        - createdAt
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          description: Date in YYYY-MM-DD format
+        subject:
+          type: string
+        hoursStudied:
+          type: number
+        focusLevel:
+          type: string
+          enum: [excellent, good, average, low, very_poor]
+        mood:
+          type: string
+          enum: [happy, normal, stressed]
+        createdAt:
+          type: string
+          format: date-time
+
+    StudyLogInput:
+      type: object
+      required:
+        - date
+        - subject
+        - hoursStudied
+        - focusLevel
+        - mood
+      properties:
+        date:
+          type: string
+          description: Date in YYYY-MM-DD format
+        subject:
+          type: string
+          minLength: 1
+        hoursStudied:
+          type: number
+          minimum: 0
+        focusLevel:
+          type: string
+          enum: [excellent, good, average, low, very_poor]
+        mood:
+          type: string
+          enum: [happy, normal, stressed]
+
+    Analytics:
+      type: object
+      required:
+        - productivityScore
+        - streakDays
+        - dailyGoalMet
+        - todayHours
+        - goalHours
+        - weeklyHours
+        - consistencyMessage
+      properties:
+        productivityScore:
+          type: number
+          description: Score from 0-100 based on study hours and focus
+        streakDays:
+          type: integer
+          description: Number of consecutive days with study activity
+        dailyGoalMet:
+          type: boolean
+          description: Whether today's study hours meet the daily goal
+        todayHours:
+          type: number
+          description: Total hours studied today
+        goalHours:
+          type: number
+          description: Daily goal in hours
+        weeklyHours:
+          type: number
+          description: Total hours studied this week
+        weakSubject:
+          type: ["string", "null"]
+          description: Subject with the lowest average hours studied
+        consistencyMessage:
+          type: string
+          description: Human-readable consistency insight
+        subjectBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubjectStat"
+        dailyHours:
+          type: array
+          description: Hours per day for chart data
+          items:
+            $ref: "#/components/schemas/DailyHoursStat"
+
+    SubjectStat:
+      type: object
+      required:
+        - subject
+        - totalHours
+        - avgHours
+        - entryCount
+      properties:
+        subject:
+          type: string
+        totalHours:
+          type: number
+        avgHours:
+          type: number
+        entryCount:
+          type: integer
+
+    DailyHoursStat:
+      type: object
+      required:
+        - date
+        - hours
+      properties:
+        date:
+          type: string
+        hours:
+          type: number
+
+    Goal:
+      type: object
+      required:
+        - id
+        - dailyGoalHours
+        - updatedAt
+      properties:
+        id:
+          type: integer
+        dailyGoalHours:
+          type: number
+        updatedAt:
+          type: string
+          format: date-time
+
+    GoalUpdate:
+      type: object
+      required:
+        - dailyGoalHours
+      properties:
+        dailyGoalHours:
+          type: number
+          minimum: 0.5
+          maximum: 24
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string

@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface GoalUpdate {
+  /**
+     * @minimum 0.5
+     * @maximum 24
+     */
+  dailyGoalHours: number;
 }
