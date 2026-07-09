@@ -1,4 +1,4 @@
-const BASE = "https://fstudy-habit-analyze.onrender.com";
+const BASE = "https://fstudy-habit-analyze.onrender.com/api";
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(BASE + path, {
